@@ -1,4 +1,4 @@
-import { BusinessDayCounter } from "../src";
+import { BusinessDayCounter, PublicHolidayRule } from "../src";
 
 const businessDayCounter = new BusinessDayCounter();
 const samplePublicHolidays = [
@@ -215,6 +215,116 @@ describe("Test BusinessDayCounter Class", () => {
   });
 
   describe("Test BusinessDaysBetweenTwoDatesWithHolidayRules", () => {
-    // TODO
+    test("Three holidays in May 2024", () => {
+      const firstDate = new Date("2024-04-30");
+      const secondDate = new Date("2024-06-01");
+
+      const fixedDayRule = new PublicHolidayRule({
+        dayOfMonth: 3,
+        month: 4,
+        shouldDeferToMonday: false,
+      });
+
+      const fixedDayRuleWithDefer = new PublicHolidayRule({
+        dayOfMonth: 5,
+        month: 4,
+        shouldDeferToMonday: true,
+      });
+
+      const weekDayRule = new PublicHolidayRule({
+        weekday: 1,
+        weekOfMonth: 2,
+        month: 4,
+      });
+
+      const publicHolidays = [fixedDayRule, fixedDayRuleWithDefer, weekDayRule];
+
+      expect(
+        businessDayCounter.BusinessDaysBetweenTwoDatesWithHolidayRules(
+          firstDate,
+          secondDate,
+          publicHolidays,
+        ),
+      ).toBe(20);
+    });
+
+    test("One holiday in range, Two not in", () => {
+      const firstDate = new Date("2024-05-03");
+      const secondDate = new Date("2024-06-15");
+
+      const fixedDayRule = new PublicHolidayRule({
+        dayOfMonth: 1,
+        month: 2,
+        shouldDeferToMonday: false,
+      });
+
+      const fixedDayRuleWithDefer = new PublicHolidayRule({
+        dayOfMonth: 31,
+        month: 11,
+        shouldDeferToMonday: true,
+      });
+
+      const weekDayRule = new PublicHolidayRule({
+        weekday: 1,
+        weekOfMonth: 2,
+        month: 4,
+      });
+
+      const publicHolidays = [fixedDayRule, fixedDayRuleWithDefer, weekDayRule];
+
+      expect(
+        businessDayCounter.BusinessDaysBetweenTwoDatesWithHolidayRules(
+          firstDate,
+          secondDate,
+          publicHolidays,
+        ),
+      ).toBe(29);
+    });
+
+    test("Long range", () => {
+      const firstDate = new Date("2022-12-01");
+      const secondDate = new Date("2025-03-01");
+
+      const newYearsDay = new PublicHolidayRule({
+        dayOfMonth: 1,
+        month: 0,
+        shouldDeferToMonday: true,
+      });
+
+      const fixedDayNonDefer = new PublicHolidayRule({
+        dayOfMonth: 1,
+        month: 5,
+        shouldDeferToMonday: false,
+      });
+
+      const weekDayRule = new PublicHolidayRule({
+        weekday: 1,
+        weekOfMonth: 2,
+        month: 4,
+      });
+
+      const publicHolidays = [newYearsDay, fixedDayNonDefer, weekDayRule];
+
+      const weekdays2022 = 21;
+      const weekdays2023 = 365 - 52 - 52;
+      const weekdays2024 = 366 - 52 - 52;
+      const weekdays2025 = 43;
+      const totalHolidays = 3 + 2 + 2;
+
+      const expected =
+        weekdays2022 +
+        weekdays2023 +
+        weekdays2024 +
+        weekdays2025 -
+        totalHolidays;
+
+      expect(
+        businessDayCounter.BusinessDaysBetweenTwoDatesWithHolidayRules(
+          firstDate,
+          secondDate,
+          publicHolidays,
+        ),
+      ).toBe(expected);
+    });
   });
 });
