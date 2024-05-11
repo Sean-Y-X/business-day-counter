@@ -1,9 +1,9 @@
 export function nextWeekDay(date: Date): number {
-	const currentDay = date.getDay();
+  const currentDay = date.getDay();
 
-	if (currentDay === 6) {
-		return 0;
-	}
+  if (currentDay === 6) {
+    return 0;
+  }
 
-	return currentDay + 1;
+  return currentDay + 1;
 }
