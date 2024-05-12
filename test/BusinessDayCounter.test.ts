@@ -212,6 +212,20 @@ describe("Test BusinessDayCounter Class", () => {
         ),
       ).toBe(16);
     });
+
+    test("Holiday on the date", () => {
+      const firstDate = new Date("2024-05-07");
+      const secondDate = new Date("2024-05-09");
+      const holidays = [new Date("2024-05-08")];
+
+      expect(
+        businessDayCounter.BusinessDaysBetweenTwoDates(
+          firstDate,
+          secondDate,
+          holidays,
+        ),
+      ).toBe(0);
+    });
   });
 
   describe("Test BusinessDaysBetweenTwoDatesWithHolidayRules", () => {
@@ -325,6 +339,60 @@ describe("Test BusinessDayCounter Class", () => {
           publicHolidays,
         ),
       ).toBe(expected);
+    });
+
+    test("Fixed holiday on the date", () => {
+      const firstDate = new Date("2024-05-13");
+      const secondDate = new Date("2024-05-15");
+      const fixedDayRule = new PublicHolidayRule({
+        dayOfMonth: 14,
+        month: 4,
+        shouldDeferToMonday: false,
+      });
+
+      expect(
+        businessDayCounter.BusinessDaysBetweenTwoDatesWithHolidayRules(
+          firstDate,
+          secondDate,
+          [fixedDayRule],
+        ),
+      ).toBe(0);
+    });
+
+    test("Fixed holiday defer to the date", () => {
+      const firstDate = new Date("2024-05-12");
+      const secondDate = new Date("2024-05-14");
+      const fixedDayRule = new PublicHolidayRule({
+        dayOfMonth: 12,
+        month: 4,
+        shouldDeferToMonday: true,
+      });
+
+      expect(
+        businessDayCounter.BusinessDaysBetweenTwoDatesWithHolidayRules(
+          firstDate,
+          secondDate,
+          [fixedDayRule],
+        ),
+      ).toBe(0);
+    });
+
+    test("Day of week on the date", () => {
+      const firstDate = new Date("2024-05-12");
+      const secondDate = new Date("2024-05-14");
+      const weekOfDayRule = new PublicHolidayRule({
+        weekday: 1,
+        weekOfMonth: 2,
+        month: 4,
+      });
+
+      expect(
+        businessDayCounter.BusinessDaysBetweenTwoDatesWithHolidayRules(
+          firstDate,
+          secondDate,
+          [weekOfDayRule],
+        ),
+      ).toBe(0);
     });
   });
 });
