@@ -1,4 +1,3 @@
-export { beginningOfDay } from "./beginningOfDay";
 export { countHolidaysBetweenDates } from "./countHolidaysBetweenDates";
 export { isSameDay } from "./isSameDay";
 export { nextWeekDay } from "./nextWeekDay";
